@@ -76,7 +76,7 @@ docker start -ai ${USER}_metagpt
 conda activate vllm
 
 # Load environment variables (e.g., model name)
-source /home/nwkim/workspace/agent-serving_MetaGPT/.envrc
+source /home/${USER}/workspace/agent-serving_MetaGPT/.envrc
 
 # Serve the model using vLLM
 # This example uses a tensor-parallel-size of 2.
