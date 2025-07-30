@@ -1,4 +1,4 @@
-# MetaGPT with a Self-Hosted vLLM Server
+# MetaGPT with a local vLLM Server
 
 This guide provides step-by-step instructions to set up and run a  MetaGPT that utilizes a local, vLLM-powered, OpenAI-compatible server as its API server. The entire environment is containerized using Docker for consistency and isolation.
 
