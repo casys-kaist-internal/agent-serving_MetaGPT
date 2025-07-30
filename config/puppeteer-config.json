@@ -1,4 +1,4 @@
 {
-  "executablePath": "/usr/bin/chromium",
+  "executablePath": "/usr/bin/google-chrome-stable",
   "args": ["--no-sandbox"]
 }
