@@ -51,7 +51,7 @@ rm Miniconda3-py310_25.5.1-1-Linux-x86_64.sh
 
 ### 3. Set Up Virtual Environments
 
-Now, run the setup script to create two separate Conda environments: `metagpt` and `vllm` (MetaGPT and vLLM are installed in each env respectively). This process isolates dependencies and can take around 20 minutes depending on your server's environment.
+Now, run the setup script to create two separate Conda environments: `metagpt` and `vllm` (MetaGPT and vLLM are installed in each env respectively). This process isolates dependencies and can take around 30 minutes depending on your server's environment.
 
 ```bash
 # Navigate to the project root
