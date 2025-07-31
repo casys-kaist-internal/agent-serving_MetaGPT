@@ -17,7 +17,12 @@ cd ~/workspace
 
 # Clone the project repository
 git clone https://github.com/casys-kaist-internal/agent-serving_MetaGPT.git
-cd agent-serving_MetaGPT/docker/ubuntu-server
+cd agent-serving_MetaGPT
+# ---- submodules setup
+git submodule init
+git submodule udpate --recursive
+
+cd docker/ubuntu-server
 
 # Build the Docker image
 ./build.sh
