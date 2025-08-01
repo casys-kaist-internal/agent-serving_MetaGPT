@@ -11,7 +11,7 @@ This guide provides step-by-step instructions to set up and run a  MetaGPT that 
 - [Running the Application](#running-the-application)
   - [Terminal 1: Start the vLLM Server](#terminal-1-start-the-vllm-server)
   - [Terminal 2: Run MetaGPT](#terminal-2-run-metagpt)
-- [Running Benchmarks (HumanEval & MBPP)](#running-benchmarks-humaneval--mbpp)
+- [AFlow: Running Benchmarks (HumanEval & MBPP)](#aflow-running-benchmarks-humaneval--mbpp)
   - [Initial Setup for Benchmarks](#initial-setup-for-benchmarks)
   - [Configure Models for Benchmarking](#configure-models-for-benchmarking)
   - [Run HumanEval Benchmark](#run-humaneval-benchmark)
@@ -151,7 +151,7 @@ python software_company.py "Make a cli number guessing game that can be played. 
 
 You have now successfully set up and run a multi-agent MetaGPT system powered by your local vLLM server!
 
-## Running Benchmarks (HumanEval & MBPP)
+## AFlow: Running Benchmarks (HumanEval & MBPP)
 
 This section details how to run MetaGPT's `aflow` optimization framework to evaluate LLM performance on HumanEval and MBPP datasets using your vLLM backend. The vLLM server launching (Terminal 1) remains the same as described above.
 
@@ -172,7 +172,7 @@ cd ~/workspace/agent-serving_MetaGPT/
 
 ### Configure Models for Benchmarking
 
-For `aflow` benchmarks, MetaGPT uses a slightly different model configuration within `config2.yaml`, typically under a `models` section for more fine-grained control over various LLMs.
+For `aflow`, MetaGPT uses a slightly different model configuration within `config2.yaml`, typically under a `models` section for more fine-grained control over various LLMs.
 
 **IMPORTANT:** You must ensure the model names used in your benchmark commands (`--opt_model_name`, `--exec_model_name`) match an entry in this `models` section.
 
