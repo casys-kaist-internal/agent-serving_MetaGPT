@@ -81,6 +81,7 @@ docker start -ai ${USER}_metagpt
 conda activate vllm
 
 # Load environment variables (e.g., model name)
+# IMPORTANT: Change VLLM_MODEL_NAME in .envrc file to the model you will serve with vLLM
 source /home/${USER}/workspace/agent-serving_MetaGPT/.envrc
 
 # Serve the model using vLLM
@@ -88,6 +89,7 @@ source /home/${USER}/workspace/agent-serving_MetaGPT/.envrc
 # Adjust this line as needed for your setup.
 vllm serve $VLLM_MODEL_NAME --tensor-parallel-size 2
 ```
+
 > **Keep this terminal open.** The vLLM server must remain running for MetaGPT to make API calls to it.
 
 ### Terminal 2: Run MetaGPT
@@ -109,7 +111,7 @@ You need to tell MetaGPT to use your local vLLM server. Open and edit the `confi
 
 llm:
   api_type: "openai"
-  model: "Qwen/Qwen3-8B"  # IMPORTANT: Change this to the model you are serving with vLLM
+  model: "Qwen/Qwen3-4B"  # IMPORTANT: Change this to the model you are serving with vLLM
   base_url: "http://127.0.0.1:8000/v1"
   api_key: "token-abc123"
 ```
@@ -132,3 +134,110 @@ python software_company.py "Make a cli number guessing game that can be played. 
 ```
 
 You have now successfully set up and run a multi-agent MetaGPT system powered by your local vLLM server!
+
+## Running Benchmarks (HumanEval & MBPP)
+
+This section details how to run MetaGPT's `aflow` optimization framework to evaluate LLM performance on HumanEval and MBPP datasets using your vLLM backend. The vLLM server launching (Terminal 1) remains the same as described above.
+
+### Initial Setup for Benchmarks
+
+In your **MetaGPT Terminal (Terminal 2)**, perform the following steps for benchmark-specific setup:
+
+```bash
+# Ensure you are in the MetaGPT conda environment
+conda activate metagpt
+
+# Install necessary libraries for benchmark evaluation (e.g., sympy for MATH, python-box for general utility)
+pip install sympy python-box
+
+# Navigate to the project root
+cd ~/workspace/agent-serving_MetaGPT/
+```
+
+### Configure Models for Benchmarking
+
+For `aflow` benchmarks, MetaGPT uses a slightly different model configuration within `config2.yaml`, typically under a `models` section for more fine-grained control over various LLMs.
+
+**IMPORTANT:** You must ensure the model names used in your benchmark commands (`--opt_model_name`, `--exec_model_name`) match an entry in this `models` section.
+
+Open and edit your `config/config2.yaml` file to include a `models` section:
+
+```yaml
+# Path: ~/workspace/agent-serving_MetaGPT/config/config2.yaml
+
+# Ensure this section is at the top level
+llm:
+  api_type: "openai"
+  model: "Qwen/Qwen3-4B" # This is your default model for general MetaGPT tasks
+  base_url: "http://127.0.0.1:8000/v1"
+  api_key: "token-abc123"
+
+# Add this 'models' section for aflow benchmarks
+models:
+  "Qwen/Qwen3-4B": # IMPORTANT: This name must match the model served by vLLM AND used in benchmark commands
+    api_type: "openai"
+    base_url: "http://127.0.0.1:8000/v1"
+    api_key: "token-abc123"
+    temperature: 0 
+CALC_USAGE: True 
+```
+
+### Run HumanEval Benchmark
+
+Execute the following command in **Terminal 2 (MetaGPT terminal)** to run the HumanEval benchmark.
+
+```bash
+# IMPORTANT:
+# - `--if_first_optimize True` should ONLY be set to True for the very first run across ALL benchmarks.
+#   For subsequent runs (even if you change dataset), set it to False.
+# - `--opt_model_name` and `--exec_model_name` MUST match an entry under the `models` section in config2.yaml.
+# - The model specified in `--exec_model_name` is the one whose performance is being measured.
+
+python -m examples.aflow.optimize --dataset HumanEval \
+--sample 4 \
+--optimized_path metagpt/ext/aflow/scripts/optimized \
+--initial_round 1 \
+--max_rounds 20 \
+--check_convergence True \
+--validation_rounds 5 \
+--if_first_optimize False \
+--opt_model_name Qwen/Qwen3-4B \
+--exec_model_name Qwen/Qwen3-4B
+```
+
+### Run MBPP Benchmark
+
+Execute the following command in **Terminal 2 (MetaGPT terminal)** to run the MBPP benchmark.
+
+```bash
+# IMPORTANT:
+# - `--if_first_optimize True` should ONLY be set to True for the very first run across ALL benchmarks.
+#   For subsequent runs (even if you change dataset), set it to False.
+# - `--opt_model_name` and `--exec_model_name` MUST match an entry under the `models` section in config2.yaml.
+# - The model specified in `--exec_model_name` is the one whose performance is being measured.
+
+python -m examples.aflow.optimize --dataset MBPP \
+--sample 4 \
+--optimized_path metagpt/ext/aflow/scripts/optimized \
+--initial_round 1 \
+--max_rounds 20 \
+--check_convergence True \
+--validation_rounds 5 \
+--if_first_optimize False \
+--opt_model_name Qwen/Qwen3-4B \
+--exec_model_name Qwen/Qwen3-4B
+```
+
+### View Benchmark Results
+
+The benchmark results, including performance scores and optimization details, will be saved under the specified `--optimized_path`.
+
+---
+
+**Crucial Note on Model Configuration:**
+When changing the model for your experiments, you **MUST** ensure consistency across all relevant configuration points:
+1.  **`.envrc` file**: `VLLM_MODEL_NAME` (for vLLM server startup)
+2.  **`config/config2.yaml`**: Both `llm.model` (default for general MetaGPT) and the model name under the `models` section (for `aflow` specific use).
+3.  **Benchmark Command**: `--opt_model_name` and `--exec_model_name` parameters.
+
+This ensures that vLLM is serving the correct model, and MetaGPT's `aflow` framework is configured to use it properly for both optimization and execution phases.
