@@ -9,6 +9,19 @@
 
 llm:
   api_type: "openai"
-  model: "Qwen/Qwen3-4B"  # change model here
+  model: "Qwen/Qwen3-4B"  # IMPORTANT: Change this to the model you are serving with vLLM
   base_url: "http://127.0.0.1:8000/v1" 
   api_key: "token-abc123"
+
+models:
+ "Qwen/Qwen3-4B": # IMPORTANT: Change this to the model you are serving with vLLM
+   api_type: "openai"
+   base_url: "http://127.0.0.1:8000/v1"
+   api_key: "token-abc123"
+   temperature: 0
+# "zai-org/GLM-4-9B-0414": # IMPORTANT: Change this to the model you are serving with vLLM
+#    api_type: "openai"
+#    base_url: "http://127.0.0.1:8000/v1"
+#    api_key: "token-abc123"
+#    temperature: 0
+CALC_USAGE: True 
