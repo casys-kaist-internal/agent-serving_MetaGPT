@@ -252,8 +252,8 @@ The benchmark results, including performance scores and optimization details, wi
 
 **Crucial Note on Model Configuration:**
 When changing the model for your experiments, you **MUST** ensure consistency across all relevant configuration points:
-1.**`.envrc` file**: `VLLM_MODEL_NAME` (for vLLM server startup)
-2.**`config/config2.yaml`**: Both `llm.model` (default for general MetaGPT) and the model name under the `models` section (for `aflow` specific use).
-3.**Benchmark Command**: `--opt_model_name` and `--exec_model_name` parameters.
+1. **`.envrc` file**: `VLLM_MODEL_NAME` (for vLLM server startup)
+2. **`config/config2.yaml`**: Both `llm.model` (default for general MetaGPT) and the model name under the `models` section (for `aflow` specific use).
+3. **Benchmark Command**: `--opt_model_name` and `--exec_model_name` parameters.
 
 This ensures that vLLM is serving the correct model, and MetaGPT's `aflow` framework is configured to use it properly for both optimization and execution phases.
