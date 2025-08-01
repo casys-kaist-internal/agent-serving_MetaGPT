@@ -2,6 +2,22 @@
 
 This guide provides step-by-step instructions to set up and run a  MetaGPT that utilizes a local, vLLM-powered, OpenAI-compatible server as its API server. The entire environment is containerized using Docker for consistency and isolation.
 
+## Table of Contents
+
+- [Setup & Installation](#setup--installation)
+  - [1. Build and Launch the Docker Container](#1-build-and-launch-the-docker-container)
+  - [2. First-Time Setup Inside the Container](#2-first-time-setup-inside-the-container)
+  - [3. Set Up Virtual Environments](#3-set-up-virtual-environments)
+- [Running the Application](#running-the-application)
+  - [Terminal 1: Start the vLLM Server](#terminal-1-start-the-vllm-server)
+  - [Terminal 2: Run MetaGPT](#terminal-2-run-metagpt)
+- [Running Benchmarks (HumanEval & MBPP)](#running-benchmarks-humaneval--mbpp)
+  - [Initial Setup for Benchmarks](#initial-setup-for-benchmarks)
+  - [Configure Models for Benchmarking](#configure-models-for-benchmarking)
+  - [Run HumanEval Benchmark](#run-humaneval-benchmark)
+  - [Run MBPP Benchmark](#run-mbpp-benchmark)
+  - [View Benchmark Results](#view-benchmark-results)
+
 ## Setup & Installation
 
 Follow these steps to build the Docker image, set up the container, and install all necessary dependencies.
@@ -236,8 +252,8 @@ The benchmark results, including performance scores and optimization details, wi
 
 **Crucial Note on Model Configuration:**
 When changing the model for your experiments, you **MUST** ensure consistency across all relevant configuration points:
-1.  **`.envrc` file**: `VLLM_MODEL_NAME` (for vLLM server startup)
-2.  **`config/config2.yaml`**: Both `llm.model` (default for general MetaGPT) and the model name under the `models` section (for `aflow` specific use).
-3.  **Benchmark Command**: `--opt_model_name` and `--exec_model_name` parameters.
+1.**`.envrc` file**: `VLLM_MODEL_NAME` (for vLLM server startup)
+2.**`config/config2.yaml`**: Both `llm.model` (default for general MetaGPT) and the model name under the `models` section (for `aflow` specific use).
+3.**Benchmark Command**: `--opt_model_name` and `--exec_model_name` parameters.
 
 This ensures that vLLM is serving the correct model, and MetaGPT's `aflow` framework is configured to use it properly for both optimization and execution phases.
