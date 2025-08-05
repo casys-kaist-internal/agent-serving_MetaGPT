@@ -13,6 +13,8 @@ ref5: https://ai.google.dev/models/gemini
 import anthropic
 import tiktoken
 
+from transformers import AutoTokenizer
+
 from metagpt.logs import logger
 
 TOKEN_COSTS = {
@@ -412,6 +414,22 @@ SPARK_TOKENS = {
     "generalv3.5": {"prompt": 0.0035, "completion": 0.0035},  # Spark3.5 Max
 }
 
+_TOKENIZER_CACHE = {}
+
+def _get_tokenizer(model_name: str):
+    if model_name in _TOKENIZER_CACHE:
+        return _TOKENIZER_CACHE[model_name]
+    
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+        _TOKENIZER_CACHE[model_name] = tokenizer
+        logger.info(f"Successfully loaded Hugging Face tokenizer for '{model_name}'.")
+        return tokenizer
+    except Exception as e:
+        logger.warning(f"Failed to load Hugging Face tokenizer for '{model_name}': {e}. Token counts may be inaccurate.")
+        _TOKENIZER_CACHE[model_name] = None
+        return None
+
 
 def count_claude_message_tokens(messages: list[dict], model: str) -> int:
     # rough estimation for models newer than claude-2.1, needs api_key or auth_token
@@ -435,8 +453,14 @@ def count_message_tokens(messages, model="gpt-3.5-turbo-0125"):
     try:
         encoding = tiktoken.encoding_for_model(model)
     except KeyError:
-        logger.info(f"Warning: model {model} not found in tiktoken. Using cl100k_base encoding.")
-        encoding = tiktoken.get_encoding("cl100k_base")
+        logger.info(f"Warning: model {model} not found in tiktoken. Attempting to use Hugging Face tokenizer.")
+        tokenizer = _get_tokenizer(model)
+        if tokenizer:
+            full_text = "".join([m.get("content", "") or "" for m in messages if isinstance(m.get("content"), str)])
+            return len(tokenizer.tokenize(full_text))
+        else:
+            logger.warning(f"Could not load tokenizer for {model}. Using cl100k_base as a fallback. Count may be inaccurate.")
+            encoding = tiktoken.get_encoding("cl100k_base")
     if model in {
         "gpt-3.5-turbo-0613",
         "gpt-3.5-turbo-16k-0613",
@@ -524,10 +548,16 @@ def count_output_tokens(string: str, model: str) -> int:
         return num_tokens
     try:
         encoding = tiktoken.encoding_for_model(model)
+        return len(encoding.encode(string))
     except KeyError:
-        logger.info(f"Warning: model {model} not found in tiktoken. Using cl100k_base encoding.")
-        encoding = tiktoken.get_encoding("cl100k_base")
-    return len(encoding.encode(string))
+        logger.info(f"Warning: model {model} not found in tiktoken for output counting. Using Hugging Face tokenizer.")
+        tokenizer = _get_tokenizer(model)
+        if tokenizer:
+            return len(tokenizer.tokenize(string))
+        else:
+            logger.warning(f"Could not load tokenizer for {model}. Using cl100k_base for output counting.")
+            encoding = tiktoken.get_encoding("cl100k_base")
+            return len(encoding.encode(string))
 
 
 def get_max_completion_tokens(messages: list[dict], model: str, default: int) -> int:
