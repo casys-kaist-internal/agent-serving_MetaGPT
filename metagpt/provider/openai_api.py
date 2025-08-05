@@ -12,6 +12,10 @@ import json
 import re
 from typing import Optional, Union
 
+import csv
+from datetime import datetime
+import os
+
 from openai import APIConnectionError, AsyncOpenAI, AsyncStream
 from openai._base_client import AsyncHttpxClientWrapper
 from openai.types import CompletionUsage
@@ -39,6 +43,46 @@ from metagpt.utils.token_counter import (
     get_max_completion_tokens,
 )
 
+
+
+_METAGPT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+LOG_FILE_PATH = os.path.join(_METAGPT_ROOT, 'usage_log.csv')
+CSV_HEADER = ["timestamp", "model", "input_messages", "prompt_tokens", "completion_tokens", "total_tokens"]
+
+_LOG_INITIALIZED = False
+
+def log_usage_to_csv(messages: list[dict], usage: 'CompletionUsage', model_name: str):
+    global _LOG_INITIALIZED
+
+    try:
+        if not _LOG_INITIALIZED:
+            if os.path.exists(LOG_FILE_PATH):
+                os.remove(LOG_FILE_PATH)
+                logger.info(f"Removed old usage log file: {LOG_FILE_PATH}")
+            _LOG_INITIALIZED = True
+
+        file_exists = os.path.isfile(LOG_FILE_PATH)
+        
+        with open(LOG_FILE_PATH, mode='a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            
+            if not file_exists:
+                writer.writerow(CSV_HEADER)
+            
+            input_messages_str = json.dumps(messages, ensure_ascii=False)
+            
+            row = [
+                datetime.now().isoformat(),
+                model_name,
+                input_messages_str,
+                getattr(usage, 'prompt_tokens', 0),
+                getattr(usage, 'completion_tokens', 0),
+                getattr(usage, 'total_tokens', 0)
+            ]
+            writer.writerow(row)
+
+    except Exception as e:
+        logger.warning(f"Failed to write usage log to {LOG_FILE_PATH}: {e}")
 
 @register_provider(
     [
@@ -131,6 +175,8 @@ class OpenAILLM(BaseLLM):
         if not usage:
             # Some services do not provide the usage attribute, such as OpenAI or OpenLLM
             usage = self._calc_usage(messages, full_reply_content)
+
+        log_usage_to_csv(messages, usage, self.model)
 
         self._update_costs(usage)
         return full_reply_content
