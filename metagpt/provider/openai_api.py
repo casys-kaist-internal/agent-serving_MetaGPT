@@ -47,11 +47,11 @@ from metagpt.utils.token_counter import (
 
 _METAGPT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 LOG_FILE_PATH = os.path.join(_METAGPT_ROOT, 'usage_log.csv')
-CSV_HEADER = ["timestamp", "model", "input_messages", "prompt_tokens", "completion_tokens", "total_tokens"]
+CSV_HEADER = ["timestamp", "model", "input_messages", "output_response", "prompt_tokens", "completion_tokens", "total_tokens"]
 
 _LOG_INITIALIZED = False
 
-def log_usage_to_csv(messages: list[dict], usage: 'CompletionUsage', model_name: str):
+def log_usage_to_csv(messages: list[dict], response_text: str, usage: 'CompletionUsage', model_name: str):
     global _LOG_INITIALIZED
 
     try:
@@ -71,13 +71,18 @@ def log_usage_to_csv(messages: list[dict], usage: 'CompletionUsage', model_name:
             
             input_messages_str = json.dumps(messages, ensure_ascii=False)
             
+            prompt_tokens = getattr(usage, 'prompt_tokens', 0)
+            completion_tokens = getattr(usage, 'completion_tokens', 0)
+            total_tokens = prompt_tokens + completion_tokens
+
             row = [
                 datetime.now().isoformat(),
                 model_name,
                 input_messages_str,
-                getattr(usage, 'prompt_tokens', 0),
-                getattr(usage, 'completion_tokens', 0),
-                getattr(usage, 'total_tokens', 0)
+                response_text,
+                prompt_tokens,
+                completion_tokens,
+                total_tokens
             ]
             writer.writerow(row)
 
@@ -176,7 +181,7 @@ class OpenAILLM(BaseLLM):
             # Some services do not provide the usage attribute, such as OpenAI or OpenLLM
             usage = self._calc_usage(messages, full_reply_content)
 
-        log_usage_to_csv(messages, usage, self.model)
+        log_usage_to_csv(messages, full_reply_content, usage, self.model)
 
         self._update_costs(usage)
         return full_reply_content
