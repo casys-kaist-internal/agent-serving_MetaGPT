@@ -21,6 +21,7 @@ conda create -n metagpt python=3.10 -y
 log "Installing 'metagpt'"
 conda run -n metagpt python -m pip install --upgrade pip
 conda run -n metagpt pip install -e .
+conda run -n metagpt sympy python-box transformers sentencepiece
 log "'metagpt' installation complete"
 
 

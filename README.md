@@ -163,9 +163,6 @@ In your **MetaGPT Terminal (Terminal 2)**, perform the following steps for bench
 # Ensure you are in the MetaGPT conda environment
 conda activate metagpt
 
-# Install necessary libraries for benchmark evaluation (e.g., sympy for MATH, python-box for general utility)
-pip install sympy python-box
-
 # Navigate to the project root
 cd ~/workspace/agent-serving_MetaGPT/
 ```
