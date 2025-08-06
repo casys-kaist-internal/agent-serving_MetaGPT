@@ -10,6 +10,7 @@ ref3: https://github.com/Significant-Gravitas/Auto-GPT/blob/master/autogpt/llm/t
 ref4: https://github.com/hwchase17/langchain/blob/master/langchain/chat_models/openai.py
 ref5: https://ai.google.dev/models/gemini
 """
+import json
 import anthropic
 import tiktoken
 
@@ -456,7 +457,7 @@ def count_message_tokens(messages, model="gpt-3.5-turbo-0125"):
         logger.info(f"Warning: model {model} not found in tiktoken. Attempting to use Hugging Face tokenizer.")
         tokenizer = _get_tokenizer(model)
         if tokenizer:
-            full_text = "".join([m.get("content", "") or "" for m in messages if isinstance(m.get("content"), str)])
+            full_text = json.dumps(messages, ensure_ascii=False)
             return len(tokenizer.tokenize(full_text))
         else:
             logger.warning(f"Could not load tokenizer for {model}. Using cl100k_base as a fallback. Count may be inaccurate.")
