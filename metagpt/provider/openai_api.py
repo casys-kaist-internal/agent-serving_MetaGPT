@@ -323,8 +323,12 @@ class OpenAILLM(BaseLLM):
             return usage
 
         try:
-            usage.prompt_tokens = count_message_tokens(messages, self.pricing_plan)
-            usage.completion_tokens = count_output_tokens(rsp, self.pricing_plan)
+            if self.pricing_plan == "open-llm-model":
+                usage.prompt_tokens = count_message_tokens(messages, self.model)
+                usage.completion_tokens = count_output_tokens(rsp, self.model)
+            else: 
+                usage.prompt_tokens = count_message_tokens(messages, self.pricing_plan)
+                usage.completion_tokens = count_output_tokens(rsp, self.pricing_plan)
         except Exception as e:
             logger.warning(f"usage calculation failed: {e}")
 

@@ -120,6 +120,7 @@ TOKEN_COSTS = {
     "llama-4-Maverick-17B-128E-Instruct-FP8": {"prompt": 0.0, "completion": 0.0},
     "llama-3.3-8B-Instruct": {"prompt": 0.0, "completion": 0.0},
     "llama-3.3-70B-Instruct": {"prompt": 0.0, "completion": 0.0}, # end, for Llama API
+    "open-llm-model": {"prompt": 0.0, "completion": 0.0},  # self-hosted model, no cost
 }
 
 

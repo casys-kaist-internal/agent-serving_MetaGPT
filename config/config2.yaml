@@ -12,6 +12,7 @@ llm:
   model: "Qwen/Qwen3-4B"  # IMPORTANT: Change this to the model you are serving with vLLM
   base_url: "http://127.0.0.1:8000/v1" 
   api_key: "token-abc123"
+  pricing_plan: "open-llm-model" # self-hosted model, no cost
 
 models:
  "Qwen/Qwen3-4B": # IMPORTANT: Change this to the model you are serving with vLLM
@@ -19,6 +20,7 @@ models:
    base_url: "http://127.0.0.1:8000/v1"
    api_key: "token-abc123"
    temperature: 0
+   pricing_plan: "open-llm-model" # self-hosted model, no cost
 # "zai-org/GLM-4-9B-0414": # IMPORTANT: Change this to the model you are serving with vLLM
 #    api_type: "openai"
 #    base_url: "http://127.0.0.1:8000/v1"

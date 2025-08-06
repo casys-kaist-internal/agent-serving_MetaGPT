@@ -130,6 +130,7 @@ llm:
   model: "Qwen/Qwen3-4B"  # IMPORTANT: Change this to the model you are serving with vLLM
   base_url: "http://127.0.0.1:8000/v1"
   api_key: "token-abc123"
+  pricing_plan: "open-llm-model" # self-hosted model, no cost
 ```
 
 #### Run MetaGPT Examples
@@ -184,6 +185,7 @@ llm:
   model: "Qwen/Qwen3-4B" # This is your default model for general MetaGPT tasks
   base_url: "http://127.0.0.1:8000/v1"
   api_key: "token-abc123"
+  pricing_plan: "open-llm-model" # self-hosted model, no cost
 
 # Add this 'models' section for aflow benchmarks
 models:
@@ -192,6 +194,7 @@ models:
     base_url: "http://127.0.0.1:8000/v1"
     api_key: "token-abc123"
     temperature: 0 
+    pricing_plan: "open-llm-model" # self-hosted model, no cost
 CALC_USAGE: True 
 ```
 
